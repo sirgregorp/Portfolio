@@ -307,3 +307,43 @@ body.adm-open{overflow:hidden}
 .adm-gal-add{position:relative;display:grid;place-items:center;aspect-ratio:1/1;border:1px dashed var(--line);border-radius:10px;cursor:pointer;color:var(--muted);font-size:13px;text-align:center;padding:8px}
 .adm-gal-add:hover{border-color:var(--accent);color:var(--accent)}
 @media (max-width:560px){.adm-pair{grid-template-columns:1fr}.adm-head,.adm-body,.adm-foot{padding-left:16px;padding-right:16px}}
+
+/* ---------- Paint intro ---------- */
+html.is-intro,html.is-intro body{overflow:hidden}
+html.is-intro .hero-title .word,html.is-intro .hero-bottom,html.is-intro .hero-meta{animation-play-state:paused}
+.intro{position:fixed;inset:0;z-index:200;background:var(--bg);color:var(--ink);overflow:hidden;display:grid;place-items:center;cursor:default;transition:opacity .9s cubic-bezier(.6,0,.2,1) .55s, visibility 0s linear 1.5s}
+.intro-paint{position:absolute;inset:-4%;width:108%;height:108%}
+.intro-stroke{stroke-dasharray:1;stroke-dashoffset:1;animation:paintIn 1.15s cubic-bezier(.65,0,.25,1) var(--d) forwards}
+@keyframes paintIn{to{stroke-dashoffset:0}}
+.intro-center{position:relative;z-index:2;text-align:center;padding:0 16px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.intro-kicker{margin:0;padding:6px 12px;border-radius:999px;background:var(--bg);color:var(--accent);opacity:0;animation:introFade .6s ease 1.35s forwards}
+.intro-name{margin:0;font-family:var(--display);font-weight:800;letter-spacing:-.045em;line-height:.88;font-size:clamp(56px,13vw,210px);color:var(--bg);display:flex;flex-wrap:wrap;justify-content:center;gap:0 .22em}
+.intro-name em{font-style:normal;color:var(--bg)}
+.intro-word{display:inline-block;padding:.02em .14em .08em;background:var(--ink);transform-origin:left center;clip-path:inset(0 100% 0 0);animation:introWipe .75s cubic-bezier(.7,0,.2,1) forwards}
+.intro-word:nth-child(1){animation-delay:1.1s}
+.intro-word:nth-child(2){animation-delay:1.28s}
+@keyframes introWipe{to{clip-path:inset(0 0 0 0)}}
+.intro-roles{margin:4px 0 0;padding:6px 12px;border-radius:999px;background:var(--bg);color:var(--ink);opacity:0;animation:introFade .6s ease 1.6s forwards}
+@keyframes introFade{to{opacity:1}}
+.intro-foot{position:absolute;left:0;right:0;bottom:max(28px,env(safe-area-inset-bottom));z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px}
+.intro-progress{width:min(220px,50vw);height:3px;border-radius:3px;background:rgba(13,13,11,.35);overflow:hidden}
+.intro-progress span{display:block;height:100%;width:0;background:var(--bg);transition:width .35s ease}
+.intro-status{margin:0;color:var(--bg);font-weight:500}
+.intro-enter{display:flex;align-items:center;gap:12px;padding:10px 18px;border:0;border-radius:999px;background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .5s,transform .5s}
+.intro-mouse{width:18px;height:28px;border:2px solid var(--accent);border-radius:10px;position:relative;flex-shrink:0}
+.intro-mouse span{position:absolute;left:50%;top:5px;width:3px;height:6px;margin-left:-1.5px;border-radius:2px;background:var(--accent);animation:wheel 1.4s ease-in-out infinite}
+@keyframes wheel{0%{transform:translateY(0);opacity:1}70%{transform:translateY(9px);opacity:0}100%{opacity:0}}
+.intro.is-ready .intro-progress,.intro.is-ready .intro-status{opacity:0;transition:opacity .3s}
+.intro.is-ready .intro-enter{opacity:1;transform:none;pointer-events:auto}
+.intro.is-ready .intro-foot{gap:0}
+/* exit: paint pulls away, text lifts, then the layer dissolves */
+.intro.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
+.intro.is-leaving .intro-stroke{animation:paintOut .85s cubic-bezier(.7,0,.3,1) calc(var(--d) * .6) forwards}
+@keyframes paintOut{from{stroke-dashoffset:0}to{stroke-dashoffset:-1}}
+.intro.is-leaving .intro-center,.intro.is-leaving .intro-foot{transition:transform .7s cubic-bezier(.7,0,.3,1),opacity .5s;transform:translateY(-40px);opacity:0}
+.intro.is-leaving .intro-paint{transition:transform 1.2s cubic-bezier(.7,0,.3,1),filter 1.2s;transform:scale(1.08);filter:blur(6px)}
+@media (prefers-reduced-motion:reduce){
+  .intro-stroke{stroke-dashoffset:0}
+  .intro-word{clip-path:none}
+  .intro-kicker,.intro-roles{opacity:1}
+}
