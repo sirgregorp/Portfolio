@@ -32,7 +32,7 @@
       const media = document.createElement('span');
       media.className = 'card-media';
       const img = document.createElement('img');
-      img.src = p.cover; img.alt = ''; img.loading = 'lazy';
+      img.src = p.cover; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
       media.appendChild(img);
       if (p.video) {
         const v = document.createElement('video');
@@ -84,13 +84,21 @@
   });
   // On touch devices, autoplay the preview when the card is on screen
   if (!canHover && 'IntersectionObserver' in window) {
+    // Only ONE preview plays at a time on phones (the card most in view) to keep scrolling smooth.
+    const ratios = new Map(); let current = null;
+    const pick = () => {
+      let best = null, bestR = 0.6;
+      ratios.forEach((r, card) => { if (r > bestR && card.querySelector('video')) { best = card; bestR = r; } });
+      if (best === current) return;
+      if (current) { current.classList.remove('is-playing'); const v = current.querySelector('video'); if (v) v.pause(); }
+      current = best;
+      if (best) { const v = best.querySelector('video'); v.preload = 'auto'; best.classList.add('is-playing'); v.play().catch(() => {}); }
+    };
     const vio = new IntersectionObserver((entries) => {
-      entries.forEach((en) => {
-        const v = en.target.querySelector('video'); if (!v) return;
-        if (en.isIntersecting) { en.target.classList.add('is-playing'); v.play().catch(() => {}); }
-        else { en.target.classList.remove('is-playing'); v.pause(); }
-      });
-    }, { threshold: 0.6 });
+      entries.forEach((en) => { if (en.isIntersecting) ratios.set(en.target, en.intersectionRatio); else ratios.delete(en.target); });
+      pick();
+    }, { threshold: [0, 0.6, 0.8, 1] });
+    document.addEventListener('visibilitychange', () => { if (document.hidden && current) { const v = current.querySelector('video'); if (v) v.pause(); } else if (current) { const v = current.querySelector('video'); if (v) v.play().catch(() => {}); } });
     const watch = () => grid.querySelectorAll('.card').forEach((c) => vio.observe(c));
     const mo = new MutationObserver(watch); mo.observe(grid, { childList: true }); watch();
   }
